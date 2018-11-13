@@ -4,7 +4,7 @@ import BaseModel from './model';
 export default function SchoolScore(app: Application) {
   const { INTEGER, STRING, DATE } = app.Sequelize;
   // 学校录取分数线
-  const modelSchema = BaseModel(app, 'schoolscore', {
+  const modelSchema = BaseModel(app, 'schoolscores', {
     school: {
       type: STRING(32),
       unique: false,

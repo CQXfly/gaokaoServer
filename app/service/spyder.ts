@@ -16,7 +16,7 @@ export default class Spyder extends Service {
 
   public async spyderMajorScore() {
 
-    // const { ctx } = this;
+    const { ctx } = this;
 
     // 爬取数据
     const rooturl = 'http://college.gaokao.com/school/tinfo/1/result';
@@ -32,6 +32,41 @@ export default class Spyder extends Service {
       const subUrls = url.split('+');
       const res = await this.spyderStart(subUrls[0]);
       let result = this.spyderData(res, subUrls[1], subUrls[2]);
+      for (const model of result) {
+        let m = await ctx.model.SchoolScore.find({
+          where: {
+            school: model.school,
+            arts_li_ke: model.arts_li_ke,
+            av_score: model.av_score,
+            enroll_lot: model.enroll_lot,
+            enroll_number: model.enroll_number,
+            enroll_age: model.enroll_age,
+            enroll_area: model.enroll_area,
+            low_score: model.low_score,
+            high_score: model.high_score,
+          },
+        });
+
+        if (m) {
+          break;
+        } else {
+          let r = await ctx.model.SchoolScore.insertOrUpdate({
+            school: model.school,
+            arts_li_ke: model.arts_li_ke,
+            av_score: model.av_score,
+            enroll_lot: model.enroll_lot,
+            enroll_number: model.enroll_number,
+            enroll_age: model.enroll_age,
+            enroll_area: model.enroll_area,
+            low_score: model.low_score,
+            high_score: model.high_score,
+          });
+
+          if (r) {
+            console.log("success");
+          }
+        }
+      }
       console.log(result);
     }
 
@@ -64,25 +99,25 @@ export default class Spyder extends Service {
             if (typeof (ele.childNodes[0].data) === 'undefined') {
               m.error = true;
             } else {
-              m.low_score = parseInt(ele.childNodes[0].data!, 10);
+              m.low_score = parseInt(ele.childNodes[0].data !== '------' ? ele.childNodes[0].data : '0', 10);
             }
           } else if (index === 2) {
             if (typeof (ele.childNodes[0].data) === 'undefined') {
               m.error = true;
             } else {
-              m.high_score = parseInt(ele.childNodes[0].data!, 10);
+              m.high_score = parseInt(ele.childNodes[0].data !== '------' ? ele.childNodes[0].data : '0', 10);
             }
           } else if (index === 3) {
             if (typeof (ele.childNodes[0].childNodes[0].data) === 'undefined') {
               m.error = true;
             } else {
-              m.av_score = parseInt(ele.childNodes[0].childNodes[0].data!, 10);
+              m.av_score = parseInt(ele.childNodes[0].childNodes[0].data !== '------' ? ele.childNodes[0].childNodes[0].data : '0', 10);
             }
           } else if (index === 4) {
             if (typeof (ele.childNodes[0].data) === 'undefined') {
               m.error = true;
             } else {
-              m.enroll_number = parseInt(ele.childNodes[0].data!, 10);
+              m.enroll_number = parseInt(ele.childNodes[0].data !== '------' ? ele.childNodes[0].data : '0', 10);
             }
           } else if (index === 5) {
             if (ele.childNodes.length > 0 && typeof (ele.childNodes[0].data) === 'undefined') {
@@ -120,16 +155,17 @@ export default class Spyder extends Service {
 class SchoolScoreModel {
   school: string;
   arts_li_ke: string;
-  av_score: number;
+  av_score: number = 0;
   enroll_lot: string;
   enroll_area: string;
   enroll_age: number;
-  low_score: number;
-  high_score: number;
+  low_score: number = 0;
+  high_score: number = 0;
   enroll_number: number;
   error: boolean = false;
 
   constructor() {
+
   }
 
   public hash() {

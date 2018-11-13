@@ -30,8 +30,8 @@ export default (appInfo: EggAppInfo) => {
     // egg-sequelize 配置
     sequelize: {
       dialect: 'mysql', // support: mysql, mariadb, postgres, mssql
-      database: 'gaokao', // 数据库名称
-      host: '127.0.0.1', // 数据库地址
+      database: 'gaokao-dev', // 数据库名称
+      host: '118.24.149.220', // 数据库地址
       port: '3306', // 数据库端口
       username: 'root', // 用户名
       password: 'fox123456', // 密码

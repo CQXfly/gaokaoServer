@@ -5,7 +5,7 @@ import BaseModel from './model';
 export default function User(app: Application) {
   const { INTEGER, DATE, STRING, BOOLEAN } = app.Sequelize;
 
-  const modelSchema = BaseModel(app, 'user', {
+  const modelSchema = BaseModel(app, 'users', {
     name: {
       type: STRING(32),
       unique: true,
