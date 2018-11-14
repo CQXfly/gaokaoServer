@@ -11,7 +11,15 @@ export default class Spyder extends Service {
   private allSubjects = ['理科', '文科', '综合', '其他', '艺术理', '艺术文'];
 
   public async test() {
-    return 'spyder';
+    return 'spyderSchool';
+  }
+
+  public async findMajor() {
+    return 'spyderMajor';
+  }
+
+  public async findSchool() {
+    return 'spyderSchool';
   }
 
   public async spyderMajorScore() {
@@ -19,55 +27,62 @@ export default class Spyder extends Service {
     const { ctx } = this;
 
     // 爬取数据
-    const rooturl = 'http://college.gaokao.com/school/tinfo/1/result';
-    const urls: string[] = []
-    this.allProvince.forEach((e, index) => {
-      this.allSubjects.forEach((e2, index2) => {
-        const url = `${rooturl}/${index + 1}/${index2 + 1}/`;
-        urls.push(`${url}+${e}+${e2}`);
-      });
-    });
-
-    for (const url of urls) {
-      const subUrls = url.split('+');
-      const res = await this.spyderStart(subUrls[0]);
-      let result = this.spyderData(res, subUrls[1], subUrls[2]);
-      for (const model of result) {
-        let m = await ctx.model.SchoolScore.find({
-          where: {
-            school: model.school,
-            arts_li_ke: model.arts_li_ke,
-            av_score: model.av_score,
-            enroll_lot: model.enroll_lot,
-            enroll_number: model.enroll_number,
-            enroll_age: model.enroll_age,
-            enroll_area: model.enroll_area,
-            low_score: model.low_score,
-            high_score: model.high_score,
-          },
+    let index = 2;
+    while (index <= 2660) {
+      const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
+      console.log(rooturl);
+      const urls: string[] = []
+      this.allProvince.forEach((e, index) => {
+        this.allSubjects.forEach((e2, index2) => {
+          const url = `${rooturl}/${index + 1}/${index2 + 1}/`;
+          urls.push(`${url}+${e}+${e2}`);
         });
+      });
 
-        if (m) {
-          break;
-        } else {
-          let r = await ctx.model.SchoolScore.insertOrUpdate({
-            school: model.school,
-            arts_li_ke: model.arts_li_ke,
-            av_score: model.av_score,
-            enroll_lot: model.enroll_lot,
-            enroll_number: model.enroll_number,
-            enroll_age: model.enroll_age,
-            enroll_area: model.enroll_area,
-            low_score: model.low_score,
-            high_score: model.high_score,
+      for (const url of urls) {
+        const subUrls = url.split('+');
+        const res = await this.spyderStart(subUrls[0]);
+        let result = this.spyderData(res, subUrls[1], subUrls[2]);
+        for (const model of result) {
+          if (model.error) {
+            continue;
+          }
+          let m = await ctx.model.SchoolScore.find({
+            where: {
+              school: model.school,
+              arts_li_ke: model.arts_li_ke,
+              av_score: model.av_score,
+              enroll_lot: model.enroll_lot,
+              enroll_number: model.enroll_number,
+              enroll_age: model.enroll_age,
+              enroll_area: model.enroll_area,
+              low_score: model.low_score,
+              high_score: model.high_score,
+            },
           });
 
-          if (r) {
-            console.log("success");
+          if (m) {
+            continue;
+          } else {
+            let r = await ctx.model.SchoolScore.insertOrUpdate({
+              school: model.school,
+              arts_li_ke: model.arts_li_ke,
+              av_score: model.av_score,
+              enroll_lot: model.enroll_lot,
+              enroll_number: model.enroll_number,
+              enroll_age: model.enroll_age,
+              enroll_area: model.enroll_area,
+              low_score: model.low_score,
+              high_score: model.high_score,
+            });
+
+            if (r) {
+              console.log("success");
+            }
           }
         }
       }
-      console.log(result);
+      index += 1;
     }
 
   }
@@ -75,12 +90,23 @@ export default class Spyder extends Service {
   private spyderData(res: string, area: string, subject: string): SchoolScoreModel[] {
 
     const $ = cheerio.load(res);
+
     let school = '';
     $('body').find('.wrap').find('.bg_sez').find('h2').each((index, ele) => {
       console.log(index);
       school = ele.childNodes[0].data!;
     });
     const result: SchoolScoreModel[] = [];
+
+    let err: boolean = false;
+    let rr = $('body').find('.wrap').find('#cont_l in').find('#ts').find('h3').text();
+    if (rr === '抱歉，没有找到相关内容') {
+      err = true;
+      let m = new SchoolScoreModel();
+      m.error = err;
+      result.push(m);
+      return result;
+    }
 
     $('body').find('#pointbyarea').find('table').find('tbody').find('tr').each((index, ele) => {
       if (index !== 0) {

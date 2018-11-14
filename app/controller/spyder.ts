@@ -12,8 +12,11 @@ export default class SpyderController extends Controller {
     } else {
       ctx.model.User.create({ name: `er${Date.now().toString()}`, notify_count: 3, status: 1, password: '123' });
     }
-
-    ctx.service.spyder.spyderMajorScore();
-    ctx.body = await ctx.service.spyder.test();
+    if (ctx.request.query['type'] === 'major') {
+      ctx.service.spyder.spyderMajorScore();
+      ctx.body = await ctx.service.spyder.findMajor();
+    } else {
+      ctx.body = await ctx.service.spyder.findSchool();
+    }
   }
 }
