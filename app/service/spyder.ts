@@ -24,14 +24,14 @@ export default class Spyder extends Service {
 
   public async spyderMajorScore() {
 
-    const { ctx } = this;
+    // const { ctx } = this;
 
     // 爬取数据
-    let index = 2;
+    let index = 376;
     while (index <= 2660) {
       const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
       console.log(rooturl);
-      const urls: string[] = []
+      const urls: string[] = [];
       this.allProvince.forEach((e, index) => {
         this.allSubjects.forEach((e2, index2) => {
           const url = `${rooturl}/${index + 1}/${index2 + 1}/`;
@@ -43,48 +43,54 @@ export default class Spyder extends Service {
         const subUrls = url.split('+');
         const res = await this.spyderStart(subUrls[0]);
         let result = this.spyderData(res, subUrls[1], subUrls[2]);
-        for (const model of result) {
-          if (model.error) {
-            continue;
-          }
-          let m = await ctx.model.SchoolScore.find({
-            where: {
-              school: model.school,
-              arts_li_ke: model.arts_li_ke,
-              av_score: model.av_score,
-              enroll_lot: model.enroll_lot,
-              enroll_number: model.enroll_number,
-              enroll_age: model.enroll_age,
-              enroll_area: model.enroll_area,
-              low_score: model.low_score,
-              high_score: model.high_score,
-            },
-          });
 
-          if (m) {
-            continue;
-          } else {
-            let r = await ctx.model.SchoolScore.insertOrUpdate({
-              school: model.school,
-              arts_li_ke: model.arts_li_ke,
-              av_score: model.av_score,
-              enroll_lot: model.enroll_lot,
-              enroll_number: model.enroll_number,
-              enroll_age: model.enroll_age,
-              enroll_area: model.enroll_area,
-              low_score: model.low_score,
-              high_score: model.high_score,
-            });
-
-            if (r) {
-              console.log("success");
-            }
-          }
-        }
+        this.asyncPool(8, result, this.schoolDBOperation.bind(this));
       }
       index += 1;
     }
 
+  }
+
+  private async schoolDBOperation(model: SchoolScoreModel) {
+    if (model.error) {
+      return;
+    }
+    const { ctx } = this;
+    let m = await ctx.model.SchoolScore.find({
+      where: {
+        school: model.school,
+        arts_li_ke: model.arts_li_ke,
+        av_score: model.av_score,
+        enroll_lot: model.enroll_lot,
+        enroll_number: model.enroll_number,
+        enroll_age: model.enroll_age,
+        enroll_area: model.enroll_area,
+        low_score: model.low_score,
+        high_score: model.high_score,
+      },
+    });
+
+    if (m) {
+      return;
+    } else {
+      let r = await ctx.model.SchoolScore.insertOrUpdate({
+        school: model.school,
+        arts_li_ke: model.arts_li_ke,
+        av_score: model.av_score,
+        enroll_lot: model.enroll_lot,
+        enroll_number: model.enroll_number,
+        enroll_age: model.enroll_age,
+        enroll_area: model.enroll_area,
+        low_score: model.low_score,
+        high_score: model.high_score,
+      });
+
+      if (r) {
+        console.log("success");
+      }
+
+      return;
+    }
   }
 
   private spyderData(res: string, area: string, subject: string): SchoolScoreModel[] {
@@ -137,7 +143,8 @@ export default class Spyder extends Service {
             if (typeof (ele.childNodes[0].childNodes[0].data) === 'undefined') {
               m.error = true;
             } else {
-              m.av_score = parseInt(ele.childNodes[0].childNodes[0].data !== '------' ? ele.childNodes[0].childNodes[0].data : '0', 10);
+              const s = ele.childNodes[0].childNodes[0].data;
+              m.av_score = parseInt(s !== '------' ? s : '0', 10);
             }
           } else if (index === 4) {
             if (typeof (ele.childNodes[0].data) === 'undefined') {
@@ -176,6 +183,35 @@ export default class Spyder extends Service {
     return p;
   }
 
+  private asyncPool(poolLimit, array, iteratorFn) {
+    let i = 0;
+    const ret: Array<Promise<any>> = [];
+    const executing: Array<Promise<any>> = [];
+    const enqueue = () => {
+      // 边界处理，array为空数组
+      if (i === array.length) {
+        return Promise.resolve();
+      }
+      // 每调一次enqueue，初始化一个promise
+      const item = array[i++];
+      const p = Promise.resolve().then(() => iteratorFn(item, array));
+      // 放入promises数组
+      ret.push(p);
+      // promise执行完毕，从executing数组中删除
+      const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+      // 插入executing数字，表示正在执行的promise
+      executing.push(e);
+      // 使用Promise.rece，每当executing数组中promise数量低于poolLimit，就实例化新的promise并执行
+      let r = Promise.resolve();
+      if (executing.length >= poolLimit) {
+        r = Promise.race(executing);
+      }
+      // 递归，直到遍历完array
+      return r.then(() => enqueue());
+    };
+    return enqueue().then(() => Promise.all(ret));
+  }
+
 }
 
 class SchoolScoreModel {
@@ -191,7 +227,6 @@ class SchoolScoreModel {
   error: boolean = false;
 
   constructor() {
-
   }
 
   public hash() {
