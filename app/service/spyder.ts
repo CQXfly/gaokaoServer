@@ -27,7 +27,7 @@ export default class Spyder extends Service {
     // const { ctx } = this;
 
     // 爬取数据
-    let index = 709;
+    let index = 1059;
     while (index <= 2660) {
       const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
       console.log(rooturl);
@@ -45,7 +45,7 @@ export default class Spyder extends Service {
         try {
           const res = await this.spyderStart(subUrls[0]);
           const result = this.spyderData(res, subUrls[1], subUrls[2]);
-          this.asyncPool(4, result, this.schoolDBOperation.bind(this));
+          this.asyncPool(20, result, this.schoolDBOperation.bind(this));
         } catch (error) {
           this.ctx.logger.error(error);
           break;
