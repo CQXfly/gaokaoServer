@@ -22,12 +22,12 @@ export default class Spyder extends Service {
     return 'spyderSchool';
   }
 
-  public async spyderMajorScore() {
+  // 学校分数线
+  public async spyderSchoolScore() {
 
     // const { ctx } = this;
-
     // 爬取数据
-    let index = 1059;
+    let index = 2000;
     while (index <= 2660) {
       const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
       console.log(rooturl);
@@ -53,6 +53,21 @@ export default class Spyder extends Service {
       }
       index += 1;
     }
+
+  }
+
+  // 专业分数线
+  public async spyderMajorScore() {
+
+  }
+
+  // 学校信息
+  public async spyderSchool() {
+    
+  }
+
+  // 地区批次线
+  public async spyderAreaScore() {
 
   }
 
@@ -96,6 +111,18 @@ export default class Spyder extends Service {
 
       return;
     }
+  }
+
+  private async schoolMajorDBOperation(model: any) {
+
+  }
+
+  private async schoolInfoDBOperation(model: any) {
+
+  }
+
+  private async areaScoreDBOperation(model: AreaScore) {
+    conts {ctx}  = this;
   }
 
   private spyderData(res: string, area: string, subject: string): SchoolScoreModel[] {
@@ -237,4 +264,12 @@ class SchoolScoreModel {
   public hash() {
     // return this.school. ^ this.arts_li_ke
   }
+}
+
+class AreaScore {
+  enroll_year: number;
+  area: string;
+  arts_li_ke: string;
+  enroll_lot: string;
+  low_score: string;// 最低分控线
 }

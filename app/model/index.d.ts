@@ -1,6 +1,8 @@
 import { Model, SequelizeStatic, Sequelize } from 'sequelize';
 import { SchoolScore } from './SchoolScore';
-import { MajorScore } from './majorScore'
+import { MajorScore } from './majorScore';
+import { AreaScore } from './areaScore';
+import { School } from './school';
 import { User } from './user';
 declare module 'egg' {
   interface Application {
@@ -12,6 +14,8 @@ declare module 'egg' {
     model: {
       SchoolScore: Model<SchoolScore, {}>,
       MajorScore: Model<MajorScore, {}>,
+      AreaScore: Model<AreaScore, {}>,
+      School: Model<School, {}>,
       User: Model<User, {}>,
     }
   }

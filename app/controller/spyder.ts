@@ -15,8 +15,8 @@ export default class SpyderController extends Controller {
     if (ctx.request.query['type'] === 'major') {
       ctx.service.spyder.spyderMajorScore();
       ctx.body = await ctx.service.spyder.findMajor();
-    } else {
-      ctx.body = await ctx.service.spyder.findSchool();
+    } else if (ctx.request.query['type'] === 'area') {
+      ctx.body = await ctx.service.spyder.spyderAreaScore();
     }
   }
 }

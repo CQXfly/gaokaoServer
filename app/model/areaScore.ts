@@ -1,10 +1,10 @@
 import { Application } from 'egg';
 import BaseModel from './model';
 
-export default function SchoolScore(app: Application) {
+export default function AreaScore(app: Application) {
   const { INTEGER, STRING, DATE } = app.Sequelize;
   // 学校录取分数线
-  const modelSchema = BaseModel(app, 'schoolscores', {
+  const modelSchema = BaseModel(app, 'areascores', {
     arts_li_ke: {
       type: STRING(8),
       unique: false,
