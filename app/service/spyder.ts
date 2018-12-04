@@ -68,7 +68,21 @@ export default class Spyder extends Service {
 
   // 地区批次线
   public async spyderAreaScore() {
-
+    let index = 1;
+    while (index <= 20) {
+      const rootUrl = `http://college.gaokao.com/areapoint/a100/p${index}`
+      //每一頁的數據一起提交入庫
+      try {
+        const res = await this.spyderStart(rootUrl);
+        const result = this.spyderAreaScoreData(res);
+        console.log(result);
+        this.asyncPool(20, result, this.areaScoreDBOperation.bind(this));
+      } catch (error) {
+        this.ctx.logger.error(error);
+        break;
+      }
+    }
+    
   }
 
   private async schoolDBOperation(model: SchoolScoreModel) {
@@ -113,16 +127,65 @@ export default class Spyder extends Service {
     }
   }
 
-  private async schoolMajorDBOperation(model: any) {
+  // private async schoolMajorDBOperation(model: any) {
 
-  }
+  // }
 
-  private async schoolInfoDBOperation(model: any) {
+  // private async schoolInfoDBOperation(model: any) {
 
-  }
+  // }
 
   private async areaScoreDBOperation(model: AreaScore) {
-    conts {ctx}  = this;
+    const { ctx } = this;
+
+    let m = await ctx.model.AreaScore.find({where:{
+      area: model.area,
+      enroll_year: model.enroll_year,
+      enroll_lot: model.enroll_lot,
+      arts_li_ke: model.arts_li_ke,
+      low_score: model.low_score,
+    }})
+
+    if(m) {
+      return
+    }
+    let r = ctx.model.AreaScore.insertOrUpdate({
+      area: model.area,
+      enroll_year: model.enroll_year,
+      enroll_lot: model.enroll_lot,
+      arts_li_ke: model.arts_li_ke,
+      low_score: model.low_score
+    })
+    if(r) {
+      console.log('insert area score success');
+    }
+
+  }
+
+  private spyderAreaScoreData(res: string) : AreaScore[] {
+    const $ = cheerio.load(res)
+    let result: AreaScore[] = []
+    $('body').find('#wrapper').find('table').find('tbody').find('tr').each((index,ele) => {
+      if(index > 0) {
+        let r = new AreaScore()
+        $(ele).find('td').each((index, element) => {
+          
+          if (index === 0) {
+            r.enroll_year = parseInt(element.childNodes[0].data!, 10);
+          } else if (index === 1) {
+            r.area = element.childNodes[0].data!
+          } else if (index === 2) {
+            r.arts_li_ke = element.childNodes[0].data!
+          } else if (index === 3) {
+            r.enroll_lot = element.childNodes[0].data!
+          } else  {
+            r.low_score = parseInt(element.childNodes[0].data!, 10);
+          }
+        })
+        result.push(r)
+      }
+    })
+    return result;
   }
 
   private spyderData(res: string, area: string, subject: string): SchoolScoreModel[] {
@@ -271,5 +334,9 @@ class AreaScore {
   area: string;
   arts_li_ke: string;
   enroll_lot: string;
-  low_score: string;// 最低分控线
+  low_score: number;// 最低分控线
+
+  constructor() {
+
+  }
 }

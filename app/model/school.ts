@@ -1,10 +1,10 @@
 import { Application } from 'egg';
 import BaseModel from './model';
 
-export default function SchoolScore(app: Application) {
+export default function School(app: Application) {
   const { INTEGER, STRING, DATE } = app.Sequelize;
   // 学校录取分数线
-  const modelSchema = BaseModel(app, 'schoolscores', {
+  const modelSchema = BaseModel(app, 'schools', {
     school: {
       type: STRING(32),
       unique: false,
