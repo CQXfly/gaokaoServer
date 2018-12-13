@@ -5,6 +5,12 @@ export default function MajorScore(app: Application) {
   const { INTEGER, STRING, DATE } = app.Sequelize;
   // 学校录取分数线
   const modelSchema = BaseModel(app, 'majorscores', {
+    major: {
+      type: STRING(32),
+      unique: false,
+      allowNull: false,
+      comment: '学校',
+    },
     school: {
       type: STRING(32),
       unique: false,
@@ -40,12 +46,6 @@ export default function MajorScore(app: Application) {
       unique: false,
       allowNull: false,
       comment: '年份',
-    },
-    low_score: {
-      type: INTEGER(8),
-      unique: false,
-      allowNull: true,
-      comment: '最低分',
     },
     high_score: {
       type: INTEGER(8),
