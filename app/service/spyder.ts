@@ -61,7 +61,7 @@ export default class Spyder extends Service {
     // 年份  2017 - 2013
     let year = 2016;
     while (year >= 2013) {
-      let page = 125;
+      let page = 1;
       while (true) {
         const rootUrl = `http://college.gaokao.com/spepoint/y${year}/p${page}`
         //爬虫 没有找到相关内容 break;
@@ -242,7 +242,13 @@ export default class Spyder extends Service {
               r.av_score = av;
             }
           } else if (index === 3) {
-            r.high_score = parseInt(element.childNodes[0].data!, 10)
+            
+            const high_score = parseInt(element.childNodes[0].data!,10)
+            if (isNaN(high_score)) {
+              r.high_score = 0;
+            } else {
+              r.high_score = high_score;
+            }
           } else if (index === 4) {
             r.enroll_area = element.childNodes[0].data!
           } else if (index === 5) {

@@ -4,9 +4,9 @@ export default class SpyderController extends Controller {
   public async index() {
 
     const { ctx } = this;
-
+    
     const r = await ctx.model.User.findAll({ where: { password: 123 } });
-
+    
     if (r[0]) {
       ctx.logger.debug(r[0]);
     } else {

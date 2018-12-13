@@ -2,6 +2,7 @@ import { Application } from 'egg';
 import BaseModel from './model';
 
 export default function AreaScore(app: Application) {
+
   const { INTEGER, STRING, DATE } = app.Sequelize;
   // 学校录取分数线
   const modelSchema = BaseModel(app, 'areascores', {
