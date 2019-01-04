@@ -27,7 +27,7 @@ export default class Spyder extends Service {
 
     // const { ctx } = this;
     // 爬取数据
-    let index = 2000;
+    let index = 0;
     while (index <= 2660) {
       const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
       console.log(rooturl);
@@ -45,7 +45,7 @@ export default class Spyder extends Service {
         try {
           const res = await this.spyderStart(subUrls[0]);
           const result = this.spyderData(res, subUrls[1], subUrls[2]);
-          this.asyncPool(20, result, this.schoolDBOperation.bind(this));
+          await this.asyncPool(20, result, this.schoolDBOperation.bind(this));
         } catch (error) {
           this.ctx.logger.error(error);
           break;
@@ -59,31 +59,38 @@ export default class Spyder extends Service {
   // 专业分数线
   public async spyderMajorScore() {
     // 年份  2017 - 2013
-    let year = 2016;
+    let year = 2017;
     while (year >= 2013) {
       let page = 1;
-      while (true) {
-        const rootUrl = `http://college.gaokao.com/spepoint/y${year}/p${page}`
-        //爬虫 没有找到相关内容 break;
-        
+      let idx = 1;
 
-        try {
-          const seeds = await this.spyderStart(rootUrl);
-          const  res =  this.spyderMajorScoreData(seeds)
-          this.asyncPool(10,res,this.schoolMajorDBOperation.bind(this));
-        } catch (error) {
-          console.log(error.message)
-          if (error.message === 'no more data') {
-            break;
-          } else {
-            page += 1;
-            continue;
+      for (const iterator of this.allProvince) {
+        console.log(iterator);
+        while (true) {
+          const rootUrl = `http://college.gaokao.com/spepoint/a${idx}/y${year}/p${page}`
+          //爬虫 没有找到相关内容 break;
+          try {
+            const seeds = await this.spyderStart(rootUrl);
+            const  res =  this.spyderMajorScoreData(seeds)
+            await this.asyncPool(20,res,this.schoolMajorDBOperation.bind(this));
+          } catch (error) {
+            console.log(error.message)
+            if (error.message === 'no more data') {
+              break;
+            } else {
+              page += 1;
+              continue;
+            }
           }
+          
+          page += 1;
+          
         }
-        
-        page += 1;
-        
+
+        idx += 1;
       }
+
+      
       year -= 1;
     } 
     // page
@@ -103,7 +110,7 @@ export default class Spyder extends Service {
       try {
         const res = await this.spyderStart(rootUrl);
         const result = this.spyderAreaScoreData(res);
-        this.asyncPool(10, result, await this.areaScoreDBOperation.bind(this));
+        await this.asyncPool(10, result, await this.areaScoreDBOperation.bind(this));
       } catch (error) {
         this.ctx.logger.error(error);
         continue;
