@@ -59,15 +59,21 @@ export default class Spyder extends Service {
   // 专业分数线
   public async spyderMajorScore() {
     // 年份  2017 - 2013
-    let year = 2017;
+    let year = 2016;
     while (year >= 2013) {
-      let page = 1;
       let idx = 1;
-
+      if(year === 2016) {
+        idx = 18;
+      }
       for (const iterator of this.allProvince) {
+        let page = 1;
+        if(idx === 18 && year === 2016) {
+          page = 6
+        }
         console.log(iterator);
         while (true) {
           const rootUrl = `http://college.gaokao.com/spepoint/a${idx}/y${year}/p${page}`
+          console.log(rootUrl);
           //爬虫 没有找到相关内容 break;
           try {
             const seeds = await this.spyderStart(rootUrl);
@@ -76,21 +82,17 @@ export default class Spyder extends Service {
           } catch (error) {
             console.log(error.message)
             if (error.message === 'no more data') {
+              page = 1;
               break;
             } else {
               page += 1;
               continue;
             }
           }
-          
-          page += 1;
-          
+          page += 1; 
         }
-
         idx += 1;
       }
-
-      
       year -= 1;
     } 
     // page
