@@ -2,12 +2,12 @@
   "extends": "tslint:latest",
   "rules": {
     "quotemark": [
-      true,
+      false,
       "single",
       "jsx-double"
     ],
     "no-console": [
-      true,
+      false,
       "dir",
       "log",
       "error",
@@ -15,29 +15,29 @@
     ],
     "space-before-function-paren": false,
     "interface-name": [
-      true,
+      false,
       "never-prefix"
     ],
-    "adjacent-overload-signatures": true,
+    "adjacent-overload-signatures": false,
     "member-access": [
       false
     ],
     "member-ordering": [
-      true,
+      false,
       {
         "order": "fields-first"
       }
     ],
     "object-literal-sort-keys": false,
     "max-classes-per-file": [
-      true,
+      false,
       10
     ],
     "variable-name": [
-      true,
+      false,
       "allow-leading-underscore"
     ],
-    "align": [true, "statements"]
+    "align": [false, "statements"]
   }
 }
 

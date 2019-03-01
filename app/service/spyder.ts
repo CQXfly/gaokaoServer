@@ -67,20 +67,20 @@ export default class Spyder extends Service {
       }
       for (const iterator of this.allProvince) {
         let page = 1;
-        if(idx === 18 && year === 2016) {
-          page = 6
+        if (idx === 18 && year === 2016) {
+          page = 6;
         }
-        console.log(iterator);
+        this.logger.info(iterator);
         while (true) {
           const rootUrl = `http://college.gaokao.com/spepoint/a${idx}/y${year}/p${page}`
-          console.log(rootUrl);
-          //爬虫 没有找到相关内容 break;
+          this.logger.info(rootUrl);
+          // 爬虫 没有找到相关内容 break;
           try {
             const seeds = await this.spyderStart(rootUrl);
             const  res =  this.spyderMajorScoreData(seeds)
             await this.asyncPool(20,res,this.schoolMajorDBOperation.bind(this));
           } catch (error) {
-            console.log(error.message)
+            this.logger.info(error.message);
             if (error.message === 'no more data') {
               page = 1;
               break;
@@ -89,7 +89,7 @@ export default class Spyder extends Service {
               continue;
             }
           }
-          page += 1; 
+          page += 1;
         }
         idx += 1;
       }
@@ -100,7 +100,7 @@ export default class Spyder extends Service {
 
   // 学校信息
   public async spyderSchool() {
-    
+    print();
   }
 
   // 地区批次线
@@ -108,7 +108,7 @@ export default class Spyder extends Service {
     let index = 1;
     while (index <= 190) {
       const rootUrl = `http://college.gaokao.com/areapoint/a100/p${index}`
-      //每一頁的數據一起提交入庫
+      // 每一頁的數據一起提交入庫
       try {
         const res = await this.spyderStart(rootUrl);
         const result = this.spyderAreaScoreData(res);
@@ -119,7 +119,6 @@ export default class Spyder extends Service {
       }
       index += 1;
     }
-    
   }
 
   private async schoolDBOperation(model: SchoolScoreModel) {
@@ -127,7 +126,7 @@ export default class Spyder extends Service {
       return;
     }
     const { ctx } = this;
-    let m = await ctx.model.SchoolScore.find({
+    const m = await ctx.model.SchoolScore.find({
       where: {
         school: model.school,
         arts_li_ke: model.arts_li_ke,
@@ -144,7 +143,7 @@ export default class Spyder extends Service {
     if (m) {
       return;
     } else {
-      let r = await ctx.model.SchoolScore.insertOrUpdate({
+      const r = await ctx.model.SchoolScore.insertOrUpdate({
         school: model.school,
         arts_li_ke: model.arts_li_ke,
         av_score: model.av_score,
@@ -157,13 +156,12 @@ export default class Spyder extends Service {
       });
 
       if (r) {
-        console.log("success");
+        this.logger.info('success');
       }
 
       return;
     }
   }
-  
   private async schoolMajorDBOperation(model: MajorScoreModel) {
     const { ctx } = this;
     const m = await ctx.model.MajorScore.find({where:{
@@ -175,10 +173,10 @@ export default class Spyder extends Service {
       enroll_age: model.enroll_age,
       high_score: model.high_score,
       arts_li_ke: model.arts_li_ke,
-    }})
+    }});
 
-    if(m) {
-      console.log(`${m}\n has saved`);
+    if (m) {
+      this.logger.info(`${m}\n has saved`);
     } else {
       await ctx.model.MajorScore.insertOrUpdate({
         major: model.major,
@@ -209,129 +207,124 @@ export default class Spyder extends Service {
       arts_li_ke: model.arts_li_ke,
       low_score: model.low_score,
       },
-    })
+    });
 
-    if(m) {
-      return
+    if (m) {
+      return;
     }
-    let r = ctx.model.AreaScore.insertOrUpdate({
+    const r = ctx.model.AreaScore.insertOrUpdate({
       area: model.area,
       enroll_age: model.enroll_year,
       enroll_lot: model.enroll_lot,
       arts_li_ke: model.arts_li_ke,
       low_score: model.low_score
-    })
-    if(r) {
-      console.log('insert area score success');
+    });
+    if (r) {
+      this.logger.info('insert area score success');
     }
 
   }
 
   private spyderMajorScoreData(res: string) : MajorScoreModel[]{
     const $ = cheerio.load(res)
-    //判断该url 是否为错误 如果出错抛弃
-    let s = $('body').find('#wrapper').find('.ts').find('h3').text();
-    if(s === '抱歉，没有找到相关内容') {
-      throw new Error('no more data')
+    // 判断该url 是否为错误 如果出错抛弃
+    const s = $('body').find('#wrapper').find('.ts').find('h3').text();
+    if (s === '抱歉，没有找到相关内容') {
+      throw new Error('no more data');
     }
-    let result: MajorScoreModel[] = []
-    $('body').find('#wrapper').find('table').find('tbody').find('tr').each((index,ele) => {
-      if (index > 0) {
-        let r = new MajorScoreModel()
-        $(ele).find('td').each((index, element) => {
+    const result: MajorScoreModel[] = [];
+    $('body').find('#wrapper').find('table').find('tbody').find('tr').each((indexx, elee) => {
+      if (indexx > 0) {
+        const r = new MajorScoreModel();
+        $(elee).find('td').each((index, element) => {
           if (index === 0) {
-            r.major = element.childNodes[0].childNodes[0].data!
+            r.major = element.childNodes[0].childNodes[0].data!;
           } else if (index === 1) {
-            r.school = element.childNodes[0].childNodes[0].data!
+            r.school = element.childNodes[0].childNodes[0].data!;
           } else if (index === 2) {
-            const av = parseInt(element.childNodes[0].childNodes[0].data!,10)
+            const av = parseInt(element.childNodes[0].childNodes[0].data!, 10);
             if (isNaN(av)) {
               r.av_score = 0;
             } else {
               r.av_score = av;
             }
           } else if (index === 3) {
-            
-            const high_score = parseInt(element.childNodes[0].data!,10)
-            if (isNaN(high_score)) {
+            const highscore = parseInt(element.childNodes[0].data!, 10);
+            if (isNaN(highscore)) {
               r.high_score = 0;
             } else {
-              r.high_score = high_score;
+              r.high_score = highscore;
             }
           } else if (index === 4) {
-            r.enroll_area = element.childNodes[0].data!
+            r.enroll_area = element.childNodes[0].data!;
           } else if (index === 5) {
-            r.arts_li_ke = element.childNodes[0].data!
+            r.arts_li_ke = element.childNodes[0].data!;
           } else if (index === 6) {
-            r.enroll_age = parseInt(element.childNodes[0].data!, 10)
+            r.enroll_age = parseInt(element.childNodes[0].data!, 10);
           } else if (index === 7) {
             r.enroll_lot = element.childNodes[0].data!;
           }
-          
-        }) 
-        result.push(r)
+        });
+        result.push(r);
       }
-
-    })
+    });
 
     return result;
 
   }
 
-  private spyderAreaScoreData(res: string) : AreaScore[] {
-    const $ = cheerio.load(res)
-    let result: AreaScore[] = []
-    $('body').find('#wrapper').find('table').find('tbody').find('tr').each((index,ele) => {
-      if(index > 0) {
-        let r = new AreaScore()
+  private spyderAreaScoreData(res: string): AreaScore[] {
+    const $ = cheerio.load(res);
+    const result: AreaScore[] = [];
+    $('body').find('#wrapper').find('table').find('tbody').find('tr').each((indexx, ele) => {
+      if (indexx > 0) {
+        const r = new AreaScore();
         $(ele).find('td').each((index, element) => {
-          
           if (index === 0) {
             r.enroll_year = parseInt(element.childNodes[0].data!, 10);
           } else if (index === 1) {
-            r.area = element.childNodes[0].data!
+            r.area = element.childNodes[0].data!;
           } else if (index === 2) {
-            r.arts_li_ke = element.childNodes[0].data!
+            r.arts_li_ke = element.childNodes[0].data!;
           } else if (index === 3) {
-            r.enroll_lot = element.childNodes[0].data!
+            r.enroll_lot = element.childNodes[0].data!;
           } else  {
             r.low_score = parseInt(element.childNodes[0].data!, 10);
           }
-        })
-        result.push(r)
+        });
+        result.push(r);
       }
-    })
+    });
     return result;
   }
 
   private spyderData(res: string, area: string, subject: string): SchoolScoreModel[] {
 
     const $ = cheerio.load(res);
-
     let school = '';
     $('body').find('.wrap').find('.bg_sez').find('h2').each((index, ele) => {
-      console.log(index);
+      this.logger.info(index);
       school = ele.childNodes[0].data!;
     });
     const result: SchoolScoreModel[] = [];
 
     let err: boolean = false;
-    let rr = $('body').find('.wrap').find('#cont_l in').find('#ts').find('h3').text();
+    const rr = $('body').find('.wrap').find('#cont_l in').find('#ts').find('h3').text();
     if (rr === '抱歉，没有找到相关内容') {
       err = true;
-      let m = new SchoolScoreModel();
+      const m = new SchoolScoreModel();
       m.error = err;
       result.push(m);
       return result;
     }
 
-    $('body').find('#pointbyarea').find('table').find('tbody').find('tr').each((index, ele) => {
-      if (index !== 0) {
-        let m = new SchoolScoreModel();
+    $('body').find('#pointbyarea').find('table').find('tbody').find('tr').each((indexx, elee) => {
+      if (indexx !== 0) {
+        const m = new SchoolScoreModel();
         m.school = school;
         m.enroll_area = area;
         m.arts_li_ke = subject;
-        $(ele).find('td').each((index, ele) => {
+        $(elee).find('td').each((index, ele) => {
           if (index === 0) {
             if (typeof (ele.childNodes[0].data) === 'undefined') {
               m.error = true;
@@ -386,7 +379,7 @@ export default class Spyder extends Service {
         if (err) {
           reject(err);
         } else {
-          resolve(res.text as string)
+          resolve(res.text as string);
           // ctx.app.logger.debug(res);
         }
       });
@@ -436,10 +429,6 @@ class SchoolScoreModel {
   high_score: number = 0;
   enroll_number: number;
   error: boolean = false;
-
-  constructor() {
-  }
-
   public hash() {
     // return this.school. ^ this.arts_li_ke
   }
@@ -450,23 +439,20 @@ class AreaScore {
   area: string;
   arts_li_ke: string;
   enroll_lot: string;
-  low_score: number;// 最低分控线
+  low_score: number; // 最低分控线
 
-  constructor() {
-    
-  }
 }
 
 class MajorScoreModel {
-  major: string
-  school: string
-  arts_li_ke: string = ''
-  av_score: number
-  enroll_lot:string
-  enroll_area: string
-  enroll_age: number
-  low_score: number
-  high_score: number
+  major: string;
+  school: string;
+  arts_li_ke: string = '';
+  av_score: number;
+  enroll_lot:string;
+  enroll_area: string;
+  enroll_age: number;
+  low_score: number;
+  high_score: number;
 }
 
 // class SchoolModel {

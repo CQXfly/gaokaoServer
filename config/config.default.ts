@@ -40,7 +40,6 @@ export default (appInfo: EggAppInfo) => {
       // 链接数据库时的可选参数
       dialectOptions: {
         charset: 'utf8mb4', // 字符集
-        collate: 'utf8mb4_unicode_ci', // 校对集
         // 当在数据库中处理一个大数(BIGINT和DECIMAL)数据类型的时候，你需要启用这个选项(默认: false)
         supportBigNumbers: true,
         // 这个选项需要bigNumberStrings与 supportBigNumbers同时启用，
@@ -54,7 +53,7 @@ export default (appInfo: EggAppInfo) => {
         charset: 'utf8mb4', // 字符集
       },
       timezone: '+08:00', // 东八时区
-    }
+    },
   };
 
   // the return config will combines to EggAppConfig
