@@ -1,6 +1,6 @@
 import { Service } from 'egg';
 import {Op} from 'sequelize';
-export default class search extends Service {
+export default class Search extends Service {
     public async searchMajore(majore: string, school: string | null, area: string = '江苏', arts_li_ke: string = '文科') {
         // 缓存中查询
         // redis key = 'searchMajore_majore_school_area'
@@ -8,7 +8,7 @@ export default class search extends Service {
 
         console.log(school);
         try {
-            const r : any[] = await this.app.redis.smembers(redis_key);
+            const r: any[] = await this.app.redis.smembers(redis_key);
 
             if (r === null || r.length <= 0) {
                 let result: any[];
@@ -53,7 +53,7 @@ export default class search extends Service {
 
         console.log(school);
         try {
-            const r : any[] = await this.app.redis.smembers(redis_key);
+            const r: any[] = await this.app.redis.smembers(redis_key);
 
             if (r === null || r.length <= 0) {
                 const result = await this.ctx.model.School.
@@ -81,7 +81,7 @@ export default class search extends Service {
 
         console.log(school);
         try {
-            const r : any[] = await this.app.redis.smembers(redis_key);
+            const r: any[] = await this.app.redis.smembers(redis_key);
 
             if (r === null || r.length <= 0) {
                 const result = await this.ctx.model.SchoolScore.
@@ -110,13 +110,13 @@ export default class search extends Service {
     public async searchAreaSore(area: string = '江苏', arts_li_ke: string = '文科') {
         const redis_key = `searchAreaSore_${area}_${arts_li_ke}`;
         try {
-            const r : any[] = await this.app.redis.smembers(redis_key);
+            const r: any[] = await this.app.redis.smembers(redis_key);
             if (r === null || r.length <= 0) {
                 const result = await this.ctx.model.AreaScore.
                     findAll({
                     where: {
                         arts_li_ke,
-                        area: area,
+                        area,
                         enroll_age: {[Op.gte]: 2014},
                     }} );
                 if (result.length <= 0) {

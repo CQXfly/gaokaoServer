@@ -66,7 +66,7 @@ export default function User(app: Application) {
       setterMethods: {
         async password(value: any) {
           app.logger.debug(value);
-          (this as any).setDataValue('password', value)
+          (this as any).setDataValue('password', value);
           // (this as any).setDataValue('password', await app.createBcrypt(value));
         },
       },

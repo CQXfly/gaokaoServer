@@ -32,6 +32,7 @@ export default class Spyder extends Service {
       const rooturl = `http://college.gaokao.com/school/tinfo/${index}/result`;
       console.log(rooturl);
       const urls: string[] = [];
+      // tslint:disable-next-line:no-shadowed-variable
       this.allProvince.forEach((e, index) => {
         this.allSubjects.forEach((e2, index2) => {
           const url = `${rooturl}/${index + 1}/${index2 + 1}/`;
@@ -207,32 +208,30 @@ export default class Spyder extends Service {
   }
 
   private async schoolDBOperation(model: SchoolModel) {
-
-    
     const {ctx} = this;
-    let m = await ctx.model.School.find({where:
+    const m = await ctx.model.School.find({where:
       {
         school : model.school,
         school_type: model.school_type,
         school_special: model.school_special,
-      }
+      },
     });
 
-    if (m) {return};
+    if (m) {return; };
 
     await ctx.model.School.insertOrUpdate({
     school: model.school,
-    school_area:model.school_area,
-    school_icon:model.school_icon,
-    school_type:model.school_type,
-    school_nature:model.school_nature,
-    school_special:model.school_special,
-    school_net:model.school_net,
-    school_attach:model.school_attach,
-    academician_number:model.academician_number,
-    doctor_station_num:model.doctor_station_num,
-    master_station_num:model.master_station_num,
-    school_id:model.school_id,
+    school_area: model.school_area,
+    school_icon: model.school_icon,
+    school_type: model.school_type,
+    school_nature: model.school_nature,
+    school_special: model.school_special,
+    school_net: model.school_net,
+    school_attach: model.school_attach,
+    academician_number: model.academician_number,
+    doctor_station_num: model.doctor_station_num,
+    master_station_num: model.master_station_num,
+    school_id: model.school_id,
     });
   }
 
@@ -276,48 +275,52 @@ export default class Spyder extends Service {
     const result: SchoolModel[] = [];
     $('body').find('#wrapper').find('.scores_List').find('dl').each((indexx, elee) => {
       const sc = new SchoolModel();
+        // tslint:disable-next-line:no-unused-expression
         indexx;
         $(elee).find('dt').each((index, element) => {
           if (element.childNodes[1].childNodes[0].attribs !== undefined){
+            // tslint:disable-next-line:no-string-literal
             sc.school_icon = element.childNodes[1].childNodes[0].attribs["src"];
           }
           sc.school = element.childNodes[2].childNodes[0].childNodes[0].data!;
+          // tslint:disable-next-line:no-unused-expression
           index;
         });
         $(elee).find('dd').each((index, element) => {
+          // tslint:disable-next-line:no-unused-expression
           index;
           $(element).find('ul').find('li').each((i, e) => {
             if (e.childNodes[0].data === undefined && i !== 1) {
               return;
             }
             if (i === 0) {
-              const area = e.childNodes[0].data!
+              const area = e.childNodes[0].data!;
               sc.school_area = area.substr(6, area.length);
             } else if (i === 1) {
               if (e.childNodes[1] !== undefined) {
-                const a = e.childNodes[1].childNodes[0].data
+                const a = e.childNodes[1].childNodes[0].data;
                 sc.school_special = `${a ? a : 'null'}`;
               }
               if (e.childNodes[2] === undefined) {
                 return;
               }
               if (e.childNodes[1].childNodes[0].data !== undefined || e.childNodes[2].childNodes[0].data !== undefined){
-                const a = e.childNodes[1].childNodes[0].data
-                const b = e.childNodes[2].childNodes[0].data
+                const a = e.childNodes[1].childNodes[0].data;
+                const b = e.childNodes[2].childNodes[0].data;
                 sc.school_special = `${a ? a : 'null'},${b ? b : 'null'}`;
               }
-              
+
             } else if (i === 2) {
-                const school_type = e.childNodes[0].data!
+                const school_type = e.childNodes[0].data!;
                 sc.school_type = school_type.substr(5, school_type.length);
             } else if (i === 3) {
-              const school_attach = e.childNodes[0].data!
+              const school_attach = e.childNodes[0].data!;
               sc.school_attach = school_attach.substr(5, school_attach.length);
             } else if ( i === 4) {
-              const school_nature = e.childNodes[0].data!
+              const school_nature = e.childNodes[0].data!;
               sc.school_nature = school_nature.substr(5, school_nature.length);
             } else if (i === 5) {
-              const school_net = e.childNodes[0].data!
+              const school_net = e.childNodes[0].data!;
               sc.school_net =  school_net.substr(5, school_net.length);
             }
           });
