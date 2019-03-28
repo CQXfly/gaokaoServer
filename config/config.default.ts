@@ -15,7 +15,7 @@ export default (appInfo: EggAppInfo) => {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,
     redis: {
       client: {
-        host: '118.24.152.108',
+        host: '118.24.101.213',
         port: 6379,
         password: '',
         db: '0',
