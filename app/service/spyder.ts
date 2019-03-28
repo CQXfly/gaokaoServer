@@ -265,7 +265,7 @@ export default class Spyder extends Service {
 
   }
 
-  private  spyderSchooleData(res: string) : SchoolModel[]  {
+  private  spyderSchooleData(res: string): SchoolModel[]  {
     const $ = cheerio.load(res);
     const s = $('body').find('#wrapper').find('.ts').find('h3').text();
     if (s === '抱歉，没有找到相关内容') {
@@ -278,7 +278,7 @@ export default class Spyder extends Service {
         // tslint:disable-next-line:no-unused-expression
         indexx;
         $(elee).find('dt').each((index, element) => {
-          if (element.childNodes[1].childNodes[0].attribs !== undefined){
+          if (element.childNodes[1].childNodes[0].attribs !== undefined) {
             // tslint:disable-next-line:no-string-literal
             sc.school_icon = element.childNodes[1].childNodes[0].attribs["src"];
           }
@@ -304,7 +304,8 @@ export default class Spyder extends Service {
               if (e.childNodes[2] === undefined) {
                 return;
               }
-              if (e.childNodes[1].childNodes[0].data !== undefined || e.childNodes[2].childNodes[0].data !== undefined){
+              if (e.childNodes[1].childNodes[0].data !== undefined
+                || e.childNodes[2].childNodes[0].data !== undefined) {
                 const a = e.childNodes[1].childNodes[0].data;
                 const b = e.childNodes[2].childNodes[0].data;
                 sc.school_special = `${a ? a : 'null'},${b ? b : 'null'}`;
@@ -331,7 +332,7 @@ export default class Spyder extends Service {
     return result;
   }
 
-  private spyderMajorScoreData(res: string) : MajorScoreModel[]{
+  private spyderMajorScoreData(res: string): MajorScoreModel[] {
     const $ = cheerio.load(res);
     // 判断该url 是否为错误 如果出错抛弃
     const s = $('body').find('#wrapper').find('.ts').find('h3').text();
