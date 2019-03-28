@@ -7,5 +7,8 @@ export default (app: Application) => {
 
   router.get('/spyder', controller.spyder.index);
 
-  app.model.MajorScore.sync({ alter: true });
+  router.get('/search', controller.search.index);
+
+  // app.model.MajorScore.sync({ alter: true });
+  // app.model.School.sync({alter: true});
 };

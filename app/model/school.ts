@@ -2,14 +2,20 @@ import { Application } from 'egg';
 import BaseModel from './model';
 
 export default function School(app: Application) {
-  const { INTEGER, STRING, DATE } = app.Sequelize;
+  const { INTEGER, STRING, DATE, TEXT } = app.Sequelize;
   // 学校录取分数线
   const modelSchema = BaseModel(app, 'schools', {
     school: {
       type: STRING(32),
-      unique: false,
+      unique: true,
       allowNull: false,
       comment: '学校',
+    },
+    school_icon: {
+      type: TEXT,
+      unique: false,
+      allowNull: false,
+      comment: '学校Icon',
     },
     school_area: {
       type: STRING(8),
@@ -23,6 +29,18 @@ export default function School(app: Application) {
       allowNull: true,
       comment: '高校类型',
     },
+    school_special: {
+      type: STRING(8),
+      unique: false,
+      allowNull: true,
+      comment: '学校特色',
+    },
+    school_net: {
+      type: STRING(8),
+      unique: false,
+      allowNull: true,
+      comment: '学校网址',
+    },
     school_nature: {
       type: STRING(8),
       unique: false,
@@ -30,7 +48,7 @@ export default function School(app: Application) {
       comment: '高校性质',
     },
     school_attach: {
-      type: INTEGER(8),
+      type: STRING(8),
       unique: false,
       allowNull: true,
       comment: '高校隶属',
