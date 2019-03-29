@@ -35,12 +35,13 @@ export default class Search extends Service {
                 if (result.length <= 0) {
                     return result;
                 }
-                await this.app.redis.sadd(redis_key, result);
-                console.log(result);
-                return result;
+                const rr = JSON.stringify(result);
+                await this.app.redis.sadd(redis_key, rr);
+                this.logger.info(rr);
+                return rr;
             }
             console.log(r);
-            return r;
+            return JSON.parse(r[0]);
         } catch (e) {
             this.logger.error(e);
         }
@@ -64,12 +65,13 @@ export default class Search extends Service {
                 if (result.length <= 0) {
                     return result;
                 }
-                await this.app.redis.sadd(redis_key, result);
-                console.log(result);
-                return result;
+                const rr = JSON.stringify(result);
+                await this.app.redis.sadd(redis_key, rr);
+                this.logger.info(rr);
+                return rr;
             }
             console.log(r);
-            return r;
+            return JSON.parse(r[0]);
         } catch (e) {
             this.logger.error(e);
         }
@@ -81,7 +83,7 @@ export default class Search extends Service {
 
         console.log(school);
         try {
-            const r: any[] = await this.app.redis.smembers(redis_key);
+            const r: string[] = await this.app.redis.smembers(redis_key);
 
             if (r === null || r.length <= 0) {
                 const result = await this.ctx.model.SchoolScore.
@@ -95,12 +97,13 @@ export default class Search extends Service {
                 if (result.length <= 0) {
                     return result;
                 }
-                await this.app.redis.sadd(redis_key, result);
-                console.log(result);
-                return result;
+                const rr = JSON.stringify(result);
+                await this.app.redis.sadd(redis_key, rr);
+                this.logger.info(rr);
+                return rr;
             }
             console.log(r);
-            return r;
+            return JSON.parse(r[0]);
         } catch (e) {
             this.logger.error(e);
         }
@@ -122,12 +125,13 @@ export default class Search extends Service {
                 if (result.length <= 0) {
                     return result;
                 }
-                await this.app.redis.sadd(redis_key, result);
-                console.log(result);
-                return result;
+                const rr = JSON.stringify(result);
+                await this.app.redis.sadd(redis_key, rr);
+                this.logger.info(rr);
+                return rr;
             }
             console.log(r);
-            return r;
+            return JSON.parse(r[0]);
         } catch (e) {
             this.logger.error(e);
         }
