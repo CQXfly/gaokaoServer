@@ -4,7 +4,7 @@
 import 'egg'; // Make sure ts to import egg declaration at first
 import AreaScore from '../../../app/model/areaScore';
 import MajorScore from '../../../app/model/majorScore';
-import Model from '../../../app/model/model';
+import Model from '../../../app/model';
 import School from '../../../app/model/school';
 import SchoolScore from '../../../app/model/schoolScore';
 import User from '../../../app/model/user';

@@ -1,5 +1,5 @@
 import { Application } from 'egg';
-import BaseModel from './model';
+import BaseModel from '../model';
 
 export default function MajorScore(app: Application) {
   const { INTEGER, STRING, DATE } = app.Sequelize;

@@ -1,6 +1,6 @@
 
 import { Application } from 'egg';
-import BaseModel from './model';
+import BaseModel from '../model';
 
 export default function User(app: Application) {
   const { INTEGER, DATE, STRING, BOOLEAN } = app.Sequelize;

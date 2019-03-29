@@ -1,5 +1,5 @@
 import { Application } from 'egg';
-import BaseModel from './model';
+import BaseModel from '../model';
 
 export default function School(app: Application) {
   const { INTEGER, STRING, DATE, TEXT } = app.Sequelize;
