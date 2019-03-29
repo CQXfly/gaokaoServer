@@ -6,10 +6,9 @@ export default (appInfo: EggAppInfo) => {
   // override config from framework / plugin
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1541386859726_6924';
-
+  config.proxy = true;
   // add your egg config in here
   config.middleware = [];
-
   // add your special config in here
   const bizConfig = {
     sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,
