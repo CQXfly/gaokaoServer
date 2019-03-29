@@ -14,6 +14,7 @@ export default class SearchController extends Controller {
         // tslint:disable-next-line:no-string-literal
         const arts_li_ke = ctx.request.query['arts'];
         this.logger.info(ctx.request.query);
+        ctx.body = 'search type should be majore \ schoolInfo \ schoolScore \ areaScore' ;
         if (type === 'majore') {
             ctx.body = await ctx.service.search.searchMajore(majore, school, area, arts_li_ke);
         } else if (type === 'schoolInfo') {
@@ -23,7 +24,5 @@ export default class SearchController extends Controller {
         } else if (type === 'areaScore') {
             ctx.body = await ctx.service.search.searchAreaSore(area, arts_li_ke);
         }
-        ctx.body = 'search type should be majore \ schoolInfo \ schoolScore \ areaScore' ;
-
     }
 }
