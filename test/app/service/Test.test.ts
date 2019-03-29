@@ -11,6 +11,6 @@ describe('test/app/service/Test.test.js', () => {
 
   it('sayHi', async () => {
     const result = await ctx.service.test.sayHi('egg');
-    assert(result === 'hi, egg');
+    assert(result === 'hi, testtttt');
   });
 });
