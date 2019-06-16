@@ -1,7 +1,9 @@
 import { Service } from 'egg';
 import {Op} from 'sequelize';
 export default class Search extends Service {
-    public async searchMajore(majore: string, school: string | null, area: string = '江苏', arts_li_ke: string = '文科') {
+    public async searchMajoreScore(majore: string, school: string | null,
+        area: string = '江苏',
+        arts_li_ke: string = '文科') {
         // 缓存中查询
         // redis key = 'searchMajore_majore_school_area'
         const redis_key = `searchMajore_${majore}_${school}_${area}_${arts_li_ke}`;
@@ -136,6 +138,30 @@ export default class Search extends Service {
             this.logger.error(e);
         }
         this.logger.info( area);
+    }
+
+    public async searchSchool(name: string) {
+        return await this.ctx.model.School.findAll({
+            where: {
+                school: {
+                    [Op.like]: `%${name}%`,
+                },
+            },
+        });
+    }
+
+    public async searchSchoolAndMajor(major: string, school: string, arts_li_ke: string,
+        area: string) {
+        return await this.ctx.model.MajorScore.findAll({
+            where: {
+                major: {
+                    [Op.like]: `%${major}%`,
+                },
+                school,
+                area,
+                arts_li_ke,
+            },
+        });
     }
 
 }

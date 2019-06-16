@@ -1,3 +1,4 @@
+import Axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Service } from 'egg';
 import * as request from 'superagent';
@@ -121,14 +122,15 @@ export default class Spyder extends Service {
 
   // 地区批次线
   public async spyderAreaScore() {
-    let index = 1;
-    while (index <= 190) {
+    let index = 23;
+    while (index <= 300) {
       const rootUrl = `http://college.gaokao.com/areapoint/a100/p${index}`;
+      console.log(rootUrl);
       // 每一頁的數據一起提交入庫
       try {
         const res = await this.spyderStart(rootUrl);
         const result = this.spyderAreaScoreData(res);
-        await this.asyncPool(10, result, await this.areaScoreDBOperation.bind(this));
+        await this.asyncPool(10, result, this.areaScoreDBOperation.bind(this));
       } catch (error) {
         this.ctx.logger.error(error);
         continue;
@@ -390,7 +392,11 @@ export default class Spyder extends Service {
           if (index === 0) {
             r.enroll_year = parseInt(element.childNodes[0].data!, 10);
           } else if (index === 1) {
-            r.area = element.childNodes[0].data!;
+            try {
+              r.area = element.childNodes[0].data!;
+            } catch (err) {
+              console.log(err);
+            }
           } else if (index === 2) {
             r.arts_li_ke = element.childNodes[0].data!;
           } else if (index === 3) {
@@ -523,6 +529,106 @@ export default class Spyder extends Service {
     return enqueue().then(() => Promise.all(ret));
   }
 
+  async requestKcx(url: string): Promise<any>{
+     return Axios.get(url);
+  }
+
+  // 从api 中填补缺失数据 16-18
+  public async spyderFromgkcx() {
+    // req:
+    // school_id 622
+    // year 16-18
+    // local_type_id 3
+    // local_province_id 32
+
+    // res :
+    // proscore 省控线
+    // local_batch_name 批次
+    // local_type_name 文理科
+    // local_province_name 招生地区
+    // name 学校名称
+    // max 最高分数
+    // min 最低分数
+    // average 平均分数
+    // https://gkcx.eol.cn/api?uri=hxsjkqt/api/gk/score/province&school_id=37&year=2018&local_province_id=31&local_type_id=3
+
+    let school_id = 0;
+    let local_province_id = 0;
+    let local_type_id = 1;
+    let year = 2018;
+    while (year <= 2018) {
+      if (year === 2018) {
+        local_province_id = 32;
+      } else {
+        local_province_id = 0;
+      }
+      while (local_province_id <= 32) {
+        if (year === 2018 && local_province_id === 32 ){
+          local_type_id = 3;
+        } else {
+          local_type_id = 1;
+        }
+        while (local_type_id <= 3) {
+          school_id = 0;
+          while (school_id <= 624) {
+            // tslint:disable-next-line:max-line-length
+            const url = `https://gkcx.eol.cn/api?uri=hxsjkqt/api/gk/score/province&school_id=${school_id}&year=${year}&local_province_id=${local_province_id}&local_type_id=${local_type_id}`;
+            this.logger.info(url);
+            try {
+              const res = await this.requestKcx(url);
+              await this.dealWithGkcxRes(res);
+            } catch (error) {
+              this.logger.error(error);
+            }
+            school_id += 1;
+          }
+          local_type_id += 1;
+        }
+        local_province_id += 1;
+      }
+      year += 1;
+    }
+  }
+
+  async dealWithGkcxRes(res: any) {
+      if (res.data.data.numFound <= 0) {
+        return;
+      }
+
+      for (let item of res.data.data.item) {
+        if (item.proscore !== '--') {
+          const area: AreaScore = new AreaScore();
+          area.area = item.local_province_name;
+          area.arts_li_ke = item.local_type_name;
+          area.enroll_lot = item.local_batch_name;
+          area.enroll_year = item.year;
+          area.low_score = Number(item.proscore);
+          await this.areaScoreDBOperation(area);
+        }
+
+        if (item.average !== undefined && item.average !== '--'){
+          const schoolScore = new SchoolScoreModel();
+          schoolScore.arts_li_ke = item.local_type_name;
+          schoolScore.av_score = item.average;
+          schoolScore.enroll_age = item.year;
+          schoolScore.enroll_area = item.local_province_name;
+          schoolScore.enroll_lot = item.local_batch_name;
+          schoolScore.enroll_number = 0;
+          if (item.max === '--') {
+            schoolScore.high_score = 0;
+          }else {
+            schoolScore.high_score = item.max;
+          }
+          if (item.min === '--') {
+            schoolScore.low_score = 0;
+          }else {
+            schoolScore.low_score = item.min;
+          }
+          schoolScore.school = item.name;
+          await this.schoolScoreDBOperation(schoolScore);
+        }
+      }
+  }
 }
 
 class SchoolScoreModel {

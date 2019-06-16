@@ -23,6 +23,9 @@ export default class SpyderController extends Controller {
       // tslint:disable-next-line:no-string-literal
     } else if (ctx.request.query['type'] === 'school') {
       ctx.body = await ctx.service.spyder.spyderSchool();
+    // tslint:disable-next-line:no-string-literal
+    } else if (ctx.request.query['type'] === 'gosky') {
+      ctx.body = await ctx.service.spyder.spyderFromgkcx();
     }
   }
 }
