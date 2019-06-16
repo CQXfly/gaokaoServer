@@ -1,4 +1,4 @@
-import Axios from 'axios';
+// import Axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Service } from 'egg';
 import * as request from 'superagent';
@@ -529,9 +529,9 @@ export default class Spyder extends Service {
     return enqueue().then(() => Promise.all(ret));
   }
 
-  async requestKcx(url: string): Promise<any> {
-     return Axios.get(url);
-  }
+  // async requestKcx(url: string): Promise<any> {
+    //  return Axios.get(url);
+  // }
 
   // 从api 中填补缺失数据 16-18
   public async spyderFromgkcx() {
@@ -576,7 +576,8 @@ export default class Spyder extends Service {
             const url = `https://gkcx.eol.cn/api?uri=hxsjkqt/api/gk/score/province&school_id=${school_id}&year=${year}&local_province_id=${local_province_id}&local_type_id=${local_type_id}`;
             this.logger.info(url);
             try {
-              const res = await this.requestKcx(url);
+              // const res = await this.requestKcx(url);
+              const res = [];
               await this.dealWithGkcxRes(res);
             } catch (error) {
               this.logger.error(error);
