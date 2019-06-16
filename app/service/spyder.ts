@@ -529,7 +529,7 @@ export default class Spyder extends Service {
     return enqueue().then(() => Promise.all(ret));
   }
 
-  async requestKcx(url: string): Promise<any>{
+  async requestKcx(url: string): Promise<any> {
      return Axios.get(url);
   }
 
@@ -550,7 +550,8 @@ export default class Spyder extends Service {
     // max 最高分数
     // min 最低分数
     // average 平均分数
-    // https://gkcx.eol.cn/api?uri=hxsjkqt/api/gk/score/province&school_id=37&year=2018&local_province_id=31&local_type_id=3
+    // https://gkcx.eol.cn/api?uri=hxsjkqt/api/gk/score/province&school_id=37
+    // &year=2018&local_province_id=31&local_type_id=3
 
     let school_id = 0;
     let local_province_id = 0;
@@ -563,7 +564,7 @@ export default class Spyder extends Service {
         local_province_id = 0;
       }
       while (local_province_id <= 32) {
-        if (year === 2018 && local_province_id === 32 ){
+        if (year === 2018 && local_province_id === 32 ) {
           local_type_id = 3;
         } else {
           local_type_id = 1;
@@ -595,7 +596,7 @@ export default class Spyder extends Service {
         return;
       }
 
-      for (let item of res.data.data.item) {
+      for (const item of res.data.data.item) {
         if (item.proscore !== '--') {
           const area: AreaScore = new AreaScore();
           area.area = item.local_province_name;
@@ -605,8 +606,7 @@ export default class Spyder extends Service {
           area.low_score = Number(item.proscore);
           await this.areaScoreDBOperation(area);
         }
-
-        if (item.average !== undefined && item.average !== '--'){
+        if (item.average !== undefined && item.average !== '--') {
           const schoolScore = new SchoolScoreModel();
           schoolScore.arts_li_ke = item.local_type_name;
           schoolScore.av_score = item.average;
