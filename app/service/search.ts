@@ -158,7 +158,7 @@ export default class Search extends Service {
                     [Op.like]: `%${major}%`,
                 },
                 school,
-                area,
+                enroll_area: area,
                 arts_li_ke,
             },
         });
