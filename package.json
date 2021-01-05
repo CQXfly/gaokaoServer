@@ -29,7 +29,7 @@
     "@types/mysql": "^2.15.5",
     "@types/sequelize": "^4.27.30",
     "async": "^2.6.1",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.2",
     "egg": "^2.6.1",
     "egg-mysql": "^3.0.0",
